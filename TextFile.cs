@@ -13,46 +13,64 @@ using System.Xml.Serialization;
 using System.Globalization;
 
 using System.Runtime.ExceptionServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Задания_1_10
 {
+    public struct Toys
+    {
+        public string Name { get; set; }
+        public decimal Price { get; set; }
+        public int AgeFrom { get; set; }
+        public int AgeTo { get; set; }
+
+        public Toys()
+        {
+            Name = "Unknown";
+            Price = 0.00m;
+            AgeFrom = 0;
+            AgeTo = 0;
+        }
+        public Toys(string name, decimal price, int ageFrom, int ageTo)
+        {
+            Name = name;
+            Price = price;
+            AgeFrom = ageFrom;
+            AgeTo = ageTo;
+        }
+    }
     internal class TextFile
     {
-        private string _filepath;
 
-        public string FilePath
+        public static string IsPathValid()
         {
-            get { return _filepath; }
-            set
+            string filePath = Console.ReadLine();
+            if (string.IsNullOrEmpty(filePath))
             {
-                if (String.IsNullOrWhiteSpace(value))
-                    throw new ArgumentException("Path name cannot be empty.");
-                if (Path.GetExtension(value).ToLower() != ".txt")
-                    throw new ArgumentException("File must be .txt extension");
-                _filepath = value;
+                throw new ArgumentNullException("Path to file is empty.");
             }
-        }
-        public TextFile()
-        {
-            _filepath = "C:\\Users\\Viktor\\Desktop\\Лабораторные работы по языкам программирования\\Лабораторная работа 7\\base.txt";
-        }
-        public TextFile(string filepath)
-        {
-            this.FilePath = filepath;
+            else if (Path.Exists(filePath))
+            {
+                return filePath;
+            }
+            else
+            {
+                throw new Exception("Path do not exists.");
+            }
         }
 
         public static void FillFileInLines(string filePath, int count, int minVal, int maxVal)
-        {
-            Random rand = new Random();
-            using (StreamWriter sw = new StreamWriter(filePath))
-            {
-                for (int i = 0; i < count; i++)
-                {
-                    int number = rand.Next(minVal, maxVal + 1);
-                    sw.WriteLine(number);
-                }
-            }
-        }
+           {
+              Random rand = new Random();
+              using (StreamWriter sw = new StreamWriter(filePath))
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
+                            int number = rand.Next(minVal, maxVal + 1);
+                            sw.WriteLine(number);
+                        }
+                    }
+           }
         public static int CountMaxEntry(string filePath, ref int maxNum)
         {
             string[] lines = File.ReadAllLines(filePath);
@@ -71,15 +89,15 @@ namespace Задания_1_10
             return maxCount;
         }
 
-        public void RunEx1()
+        public static void RunEx1(string path)
         {
             int numCount = 20;
             int minVal = 1;
             int maxVal = 100;
             int maxNum = minVal - 1;
 
-            FillFileInLines(this.FilePath, numCount, minVal, maxVal);
-            int maxEntry = CountMaxEntry(this.FilePath, ref maxNum);
+            FillFileInLines(path, numCount, minVal, maxVal);
+            int maxEntry = CountMaxEntry(path, ref maxNum);
             Console.WriteLine($"Maximal number is {maxNum}, it occurs {maxEntry} time(s)");
         }
 
@@ -128,15 +146,15 @@ namespace Задания_1_10
             }
         }
 
-        public void RunEx2()
+        public static void RunEx2(string path)
         {
             int linesCount = 20;
             int numberPerLine = 10;
             int minVal = 0;
             int maxVal = 100;
 
-            FillNumbersInLine(this.FilePath, linesCount, numberPerLine, minVal, maxVal);
-            int countEv = CountEven(this.FilePath);
+            FillNumbersInLine(path, linesCount, numberPerLine, minVal, maxVal);
+            int countEv = CountEven(path);
             Console.WriteLine($"Quantity of even numbers in file is {countEv}");
         }
 
@@ -152,7 +170,7 @@ namespace Задания_1_10
             File.WriteAllLines(outputFile, matchedLines);
         }
 
-        public void RunEx3()
+        public static void RunEx3(string path)
         {
             string inputFile = "C:\\Users\\Viktor\\Desktop\\Лабораторные работы по языкам программирования\\Лабораторная работа 7\\ex3.txt";
             string substring;
@@ -162,8 +180,8 @@ namespace Задания_1_10
                 substring = Console.ReadLine();
             } while (substring == null);
 
-            CopyLines(inputFile, this.FilePath, substring);
-            Console.WriteLine($"Strings written to file: {this.FilePath}");
+            CopyLines(inputFile, path, substring);
+            Console.WriteLine($"Strings written to file: {path}");
         }
 
         public static void FillBinaryFile(string filePath, int count, int minVal, int maxVal)
@@ -193,7 +211,7 @@ namespace Задания_1_10
             return maxVal - minVal;
         }
 
-        public void RunEx4()
+        public static void RunEx4(string path)
         {
             int count = 20;
             int minVal = 0;
@@ -201,23 +219,24 @@ namespace Задания_1_10
             int localMax = minVal - 1;
             int localMin = maxVal + 1;
 
-            FillBinaryFile(this.FilePath, count, minVal, maxVal);
-            int diff = DifferenceMaxMin(this.FilePath, ref localMin, ref localMax);
+            FillBinaryFile(path, count, minVal, maxVal);
+            int diff = DifferenceMaxMin(path, ref localMin, ref localMax);
             Console.WriteLine($"Difference of {localMax} and {localMin} = {diff}");
         }
 
-        public void FillFileToys(string filePath)
+       
+        public static void FillFileToys(string filePath)
         {
-            List<ToyEx5> toys = new List<ToyEx5>
+            List<Toys> toys = new List<Toys>
             {
-                new ToyEx5("Lego", 799.99m, 5, 99),
-                new ToyEx5("Auto", 499.99m, 2, 7),
-                new ToyEx5("Doll", 749.99m, 4, 8),
-                new ToyEx5("Puzzles", 849.99m, 6, 12),
-                new ToyEx5("Bow", 599.99m, 7, 11)
+                new Toys("Lego", 799.99m, 5, 99),
+                new Toys("Auto", 499.99m, 2, 7),
+                new Toys("Doll", 749.99m, 4, 8),
+                new Toys("Puzzles", 849.99m, 6, 12),
+                new Toys("Bow", 599.99m, 7, 11)
             };
 
-            XmlSerializer serializer = new XmlSerializer(typeof(List<ToyEx5>));
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Toys>));
             byte[] xmlBytes;
             using (MemoryStream ms = new MemoryStream())
             {
@@ -232,21 +251,21 @@ namespace Задания_1_10
             }
         }
 
-        public List<ToyEx5> DeserializeToys(string filePath)
+        public  static List<Toys> DeserializeToys(string filePath)
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(List<ToyEx5>));
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Toys>));
             using (BinaryReader br = new BinaryReader(new FileStream(filePath, FileMode.Open)))
             {
                 int length = br.ReadInt32();
                 byte[] xmlBytes = br.ReadBytes(length);
                 using (MemoryStream ms = new MemoryStream(xmlBytes))
                 {
-                    return (List<ToyEx5>)serializer.Deserialize(ms);
+                    return (List<Toys>)serializer.Deserialize(ms);
                 }
             }
         }
 
-        public List<ToyEx5> GetExpensiveToys(List<ToyEx5> toys, decimal k)
+        public static List<Toys> GetExpensiveToys(List<Toys> toys, decimal k)
         {
             decimal maxPrice = 0.00m;
             foreach (var toy in toys)
@@ -255,7 +274,7 @@ namespace Задания_1_10
                     maxPrice = toy.Price;
             }
 
-            List<ToyEx5> expensiveToys = new List<ToyEx5>();
+            List<Toys> expensiveToys = new List<Toys>();
             foreach (var toy in toys)
             {
                 if ((maxPrice - toy.Price) <= k)
@@ -264,10 +283,9 @@ namespace Задания_1_10
             return expensiveToys;
         }
 
-        public void RunEx5()
+        public static void RunEx5(string filePath)
         {
             decimal k;
-            string filePath = "C:\\Users\\Viktor\\Desktop\\Лабораторные работы по языкам программирования\\Лабораторная работа 7\\ex5.txt";
 
             Console.WriteLine("Ex5 starts here");
             bool isValid = false;
@@ -280,7 +298,7 @@ namespace Задания_1_10
                     Console.WriteLine("Enter positive decimal value");
             } while (!isValid);
 
-            List<ToyEx5> toys = new List<ToyEx5>();
+            List<Toys> toys = new List<Toys>();
 
             FillFileToys(filePath);
             toys = DeserializeToys(filePath);
@@ -291,7 +309,7 @@ namespace Задания_1_10
                 return;
             }
 
-            List<ToyEx5> expensiveToys = GetExpensiveToys(toys, k);
+            List<Toys> expensiveToys = GetExpensiveToys(toys, k);
             Console.WriteLine("Most expensive toys:");
             foreach (var toy in expensiveToys)
             {
@@ -299,7 +317,7 @@ namespace Задания_1_10
             }
         }
 
-        public void RunEx6()
+        public static void RunEx6()
         {
             Console.WriteLine("Enter elements of list with space:");
             string input = Console.ReadLine();
@@ -323,11 +341,8 @@ namespace Задания_1_10
             }
         }
 
-        public void RunEx7()
+        public static void RunEx7()
         {
-            bool isValid;
-            int quantity;
-
             Console.WriteLine("Here starts Ex7");
             Console.WriteLine("Enter linked list with spaces");
             string input = Console.ReadLine();
@@ -374,7 +389,7 @@ namespace Задания_1_10
             Console.WriteLine("\n");
         }
 
-        public void RunEx8()
+        public static void RunEx8()
         {
             var allFactories = new HashSet<string>
             { "Factory1", "Factory2", "Factory3", "Factory4" };
@@ -408,13 +423,13 @@ namespace Задания_1_10
             Console.WriteLine("\n");
         }
 
-        public void RunEx9()
+        public static void RunEx9(string path)
         {
-            string text = File.ReadAllText(this.FilePath);
+            string text = File.ReadAllText(path);
 
             MatchCollection matches = Regex.Matches(text, @"\p{L}+");
             List<string> words = new List<string>();
-            foreach (System.Text.RegularExpressions.Match m in matches)
+            foreach (Match m in matches)
             {
                 words.Add(m.Value);
             }
@@ -481,12 +496,14 @@ namespace Задания_1_10
                     {
                         if (Char.ToUpper(word[j]) == letter)
                         {
-                            found = true; break;
+                            found = true; 
+                            break;
                         }
                     }
                     if (!found)
                     {
-                        missingInEven = true; break;
+                        missingInEven = true; 
+                        break;
                     }
                 }
                 if (missingInEven)
@@ -514,9 +531,8 @@ namespace Задания_1_10
             Console.WriteLine("\n");
         }
 
-        public void RunEx10()
+        public static void RunEx10(string filePath)
         {
-            string filePath = "C:\\Users\\Viktor\\Desktop\\Лабораторные работы по языкам программирования\\Лабораторная работа 7\\ex10.txt";
             string[] lines = File.ReadAllLines(filePath);
             if (lines.Length == 0)
             {
@@ -563,11 +579,6 @@ namespace Задания_1_10
                 if (!int.TryParse(tokens[2], out fat) || !int.TryParse(tokens[3], out price))
                 {
                     Console.WriteLine("Error in conversion data: " + line);
-                    continue;
-                }
-
-                if (!data.ContainsKey(fat))
-                {
                     continue;
                 }
 
