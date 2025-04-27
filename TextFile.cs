@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Numerics;
 using System.Runtime;
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -60,17 +60,17 @@ namespace Задания_1_10
         }
 
         public static void FillFileInLines(string filePath, int count, int minVal, int maxVal)
-           {
-              Random rand = new Random();
-              using (StreamWriter sw = new StreamWriter(filePath))
-                    {
-                        for (int i = 0; i < count; i++)
-                        {
-                            int number = rand.Next(minVal, maxVal + 1);
-                            sw.WriteLine(number);
-                        }
-                    }
-           }
+        {
+            Random rand = new Random();
+            using (StreamWriter sw = new StreamWriter(filePath))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int number = rand.Next(minVal, maxVal + 1);
+                    sw.WriteLine(number);
+                }
+            }
+        }
         public static int CountMaxEntry(string filePath, ref int maxNum)
         {
             string[] lines = File.ReadAllLines(filePath);
@@ -83,9 +83,17 @@ namespace Задания_1_10
             if (numbers.Length == 0)
                 return 0;
 
-            maxNum = numbers.Max();
-            int localMax = maxNum;
-            int maxCount = numbers.Count(n => n == localMax);
+            int maxCount = 0;
+            maxNum = numbers[0];
+            for (int i = 1; i < numbers.Length; i++)
+            {
+                if (numbers[i] == maxNum) maxCount++;
+                else if (numbers[i] > maxNum)
+                {
+                    maxCount = 1;
+                    maxNum = numbers[i];
+                }
+            }
             return maxCount;
         }
 
@@ -124,26 +132,25 @@ namespace Задания_1_10
 
         public static int CountEven(string filePath)
         {
-            {
-                int count = 0;
-                string[] lines = File.ReadAllLines(filePath);
-                foreach (string line in lines)
-                {
-                    string[] numStr = line.Split(new char[] { ' ' });
 
-                    foreach (string num in numStr)
+            int count = 0;
+            string[] lines = File.ReadAllLines(filePath);
+            foreach (string line in lines)
+            {
+                string[] numStr = line.Split(new char[] { ' ' });
+                foreach (string num in numStr)
+                {
+                    if (Int32.TryParse(num, out int number))
                     {
-                        if (int.TryParse(num, out int number))
+                        if (number % 2 == 0)
                         {
-                            if (number % 2 == 0)
-                            {
-                                count++;
-                            }
+                            count++;
                         }
                     }
                 }
-                return count;
             }
+            return count;
+
         }
 
         public static void RunEx2(string path)
@@ -165,7 +172,9 @@ namespace Задания_1_10
             foreach (string line in lines)
             {
                 if (line.IndexOf(substring, StringComparison.OrdinalIgnoreCase) >= 0)
-                { matchedLines.Add(line); }
+                {
+                    matchedLines.Add(line);
+                }
             }
             File.WriteAllLines(outputFile, matchedLines);
         }
@@ -178,7 +187,7 @@ namespace Задания_1_10
             {
                 Console.Write("Enter substring: ");
                 substring = Console.ReadLine();
-            } while (substring == null);
+            } while (string.IsNullOrEmpty(substring));
 
             CopyLines(inputFile, path, substring);
             Console.WriteLine($"Strings written to file: {path}");
@@ -199,7 +208,7 @@ namespace Задания_1_10
 
         public static int DifferenceMaxMin(string filePath, ref int minVal, ref int maxVal)
         {
-            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.OpenOrCreate)))
+            using (BinaryReader reader = new BinaryReader(File.Open(filePath, FileMode.Open)))
             {
                 while (reader.BaseStream.Position < reader.BaseStream.Length)
                 {
@@ -224,7 +233,7 @@ namespace Задания_1_10
             Console.WriteLine($"Difference of {localMax} and {localMin} = {diff}");
         }
 
-       
+
         public static void FillFileToys(string filePath)
         {
             List<Toys> toys = new List<Toys>
@@ -251,7 +260,7 @@ namespace Задания_1_10
             }
         }
 
-        public  static List<Toys> DeserializeToys(string filePath)
+        public static List<Toys> DeserializeToys(string filePath)
         {
             XmlSerializer serializer = new XmlSerializer(typeof(List<Toys>));
             using (BinaryReader br = new BinaryReader(new FileStream(filePath, FileMode.Open)))
@@ -285,10 +294,9 @@ namespace Задания_1_10
 
         public static void RunEx5(string filePath)
         {
-            decimal k;
-
             Console.WriteLine("Ex5 starts here");
             bool isValid = false;
+            decimal k;
             do
             {
                 Console.Write("Enter k in rubles: ");
@@ -328,6 +336,7 @@ namespace Задания_1_10
                 Console.WriteLine("List is empty.");
                 return;
             }
+
             List<string> list = new List<string>(elements);
 
             string firstElement = list[0];
@@ -391,15 +400,22 @@ namespace Задания_1_10
 
         public static void RunEx8()
         {
+            Console.WriteLine("Here starts Ex8");
             var allFactories = new HashSet<string>
-            { "Factory1", "Factory2", "Factory3", "Factory4" };
+            { "1", "2", "3", "4" };
 
-            var purchased = new List<HashSet<string>>
+            var purchased = new List<HashSet<string>> { };
+            int q = InputValidation.InputIntegerWithValidation("Enter quantity of customers: ", 1, 99);
+
+            for(int i = 0; i < q; i++)
             {
-                new HashSet<string> { "Factory1", "Factory2", "Factory4" },
-                new HashSet<string> { "Factory2", "Factory4" },
-                new HashSet<string> { "Factory1", "Factory4" },
-            };
+                Console.Write($"Enter purchased furniture (1-4) for {i + 1} customer in one string with whitespaces: ");
+                string input = Console.ReadLine();
+                string[] elements = input.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                HashSet<string> customer = new HashSet<string>(elements);
+                purchased.Add(customer);
+            }
 
             var purchasedByAll = new HashSet<string>(purchased[0]);
             for (int i = 1; i < purchased.Count; i++)
@@ -416,7 +432,6 @@ namespace Задания_1_10
             var purchasedByNone = new HashSet<string>(allFactories);
             purchasedByNone.ExceptWith(purchasedBySome);
 
-            Console.WriteLine("Here starts Ex8");
             Console.WriteLine($"Factories, those furniture was purchased by all: {string.Join(" ,", purchasedByAll)}");
             Console.WriteLine($"Factories, those furniture was purchased by some: {string.Join(" ,", purchasedBySome)}");
             Console.WriteLine($"Factories, those furniture was purchased by none: {string.Join(" ,", purchasedByNone)}");
@@ -428,107 +443,68 @@ namespace Задания_1_10
             string text = File.ReadAllText(path);
 
             MatchCollection matches = Regex.Matches(text, @"\p{L}+");
-            List<string> words = new List<string>();
-            foreach (Match m in matches)
-            {
-                words.Add(m.Value);
-            }
-            if (words.Count == 0)
+            if (matches.Count == 0)
             {
                 Console.WriteLine("No words in file.");
                 return;
             }
 
-            HashSet<char> voiceless = new HashSet<char>();
-            string voicelessChars = "ПФКТШСХЦЧЩпфктшсхцчщ";
-            for (int i = 0; i < voicelessChars.Length; i++)
-            {
-                voiceless.Add(voicelessChars[i]);
-            }
+            string voicelessChars = "ПФКТШСХЦЧЩ";
+            HashSet<char> voicelessSet = new HashSet<char>(voicelessChars);
+            HashSet<char> commonInOdd = null;
 
-            HashSet<char> intersectionOdd = null;
-            for (int i = 0; i < words.Count; i += 2)
+            for (int i = 0; i < matches.Count; i += 2)
             {
-                string word = words[i];
-                HashSet<char> lettersInWord = new HashSet<char>();
-                for (int j = 0; j < word.Length; j++)
+                string word = matches[i].Value.ToUpperInvariant();
+                var letters = new HashSet<char>();
+                foreach (char ch in word)
                 {
-                    char ch = word[j];
-                    if (voiceless.Contains(ch))
-                    {
-                        lettersInWord.Add(Char.ToUpper(ch));
-                    }
+                    if (voicelessSet.Contains(ch))
+                        letters.Add(ch);
                 }
-                if (intersectionOdd == null)
+                
+                if (commonInOdd == null)
                 {
-                    intersectionOdd = lettersInWord;
+                    commonInOdd = letters;
                 }
                 else
                 {
-                    HashSet<char> newIntersection = new HashSet<char>();
-                    foreach (char c in intersectionOdd)
-                    {
-                        if (lettersInWord.Contains(c))
-                        {
-                            newIntersection.Add(c);
-                        }
-                    }
-                    intersectionOdd = newIntersection;
+                   commonInOdd.IntersectWith(letters);
+                }
+                if (commonInOdd.Count == 0)
+                {
+                    Console.WriteLine("No voiceless consonants found in all odd words.");
+                    return;
                 }
 
             }
 
-            if (intersectionOdd == null || intersectionOdd.Count == 0)
-            {
-                Console.WriteLine("Voiceless consonants were not found in odd words.");
-                return;
-            }
-
-            HashSet<char> result = new HashSet<char>();
-            foreach (char letter in intersectionOdd)
+            var result = new List<char>();
+            foreach (char ch in commonInOdd)
             {
                 bool missingInEven = false;
-                for (int i = 1; i < words.Count; i += 2)
+                for (int i = 1; i < matches.Count; i+=2)
                 {
-                    string word = words[i];
-                    bool found = false;
-                    for (int j = 0; j < word.Length; j++)
+                    string word = matches[i].Value.ToUpperInvariant();
+                    if (!word.Contains(ch))
                     {
-                        if (Char.ToUpper(word[j]) == letter)
-                        {
-                            found = true; 
-                            break;
-                        }
-                    }
-                    if (!found)
-                    {
-                        missingInEven = true; 
+                        missingInEven = true;
                         break;
                     }
                 }
                 if (missingInEven)
-                {
-                    result.Add(letter);
-                }
+                    result.Add(ch);
             }
 
-            char[] resultArr = new char[result.Count];
-            int idx = 0;
-            foreach (char c in result)
+            if (result.Count == 0)
             {
-                resultArr[idx++] = c;
+                Console.WriteLine("No qualifying voiceless consonants found.");
+                return;
             }
-            CultureInfo culture = new CultureInfo("ru-RU");
-            Array.Sort(resultArr, (a, b) => culture.CompareInfo.Compare(a.ToString(), b.ToString(), CompareOptions.StringSort));
+            var culture = new CultureInfo("ru-RU");
+            result.Sort((a, b) => culture.CompareInfo.Compare(a.ToString(), b.ToString(), CompareOptions.StringSort));
 
-            Console.WriteLine("Voiceless consonants, satisfying the condition: ");
-            for (int i = 0; i < resultArr.Length; i++)
-            {
-                Console.Write(resultArr[i]);
-                if (i < resultArr.Length - 1)
-                    Console.Write(", ");
-            }
-            Console.WriteLine("\n");
+            Console.WriteLine($"Voiceless consonants satisfying the condition: {string.Join(", ", result)}");
         }
 
         public static void RunEx10(string filePath)
